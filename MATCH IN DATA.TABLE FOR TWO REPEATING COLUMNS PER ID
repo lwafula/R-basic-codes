@@ -1,0 +1,12 @@
+## MATCH IN DATA.TABLE. IF THERE ARE COLUMNS THAT ARE REPEATED BUT CONFINED TO A 
+# SUBJECT. HOW TO CONVERT THE REPEATED COLUMNS INTO A CONTINUOUS COLUMN(S) IN R
+# DATA.TABLE
+
+df <- data.table::data.table(cbind(x=c(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3), 
+             y=c(rep(c(100,100,200,200,300,300),3)),
+             y2=c(10,10,20,20,30,30,321,321,322,322,434,434,11,11,23,23,45,45)))
+
+# continuous ordering of the setIDs for all subjects
+df[, setID1:= match(y, table = unique(y)), by=x]
+
+df[, setID2:= match(y2, table = unique(y2)), by=x]
