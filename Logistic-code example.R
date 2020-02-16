@@ -82,7 +82,7 @@ manual_logistic_regression(X,y)
 # (Intercept)          x1          x2          x3 
 # -1.3512086   0.3191309   0.2033449  -0.0832102 
 
-#### CODE2- shorter ####
+#### CODE2- via optim ####
 # ===
 # https://stats.stackexchange.com/questions/81000/calculate-coefficients-in-a-logistic-regression-with-r
 # ===
@@ -110,6 +110,22 @@ logLikelihoodLogitStable = function(vBeta, mX, vY) {
 # minimise the (negative) log-likelihood to get the logit fit
 optimLogit = optim(tbeta, logLikelihoodLogitStable, mX = X, vY = y, method = 'BFGS', hessian=TRUE)
 logit(X, optimLogit$par)
+
+# LEo-CODE ####
+I <- nrow(X)
+y.I <- array(y, I)
+X.I <- aperm(X, c(2,1))
+f <- function(theta, X.I, y.I){
+  # prior<- sum(log(dnorm(theta))) #using the prior throws the estimated elsewhere
+  theta.I <- theta%o%rep(1,I)
+  ll.I<-y.I*(apply(X.I*theta.I,2,sum) - log(1+ exp(apply(X.I*theta.I,2,sum)))) + 
+    (1-y.I)*(-log(1+ exp(apply(X.I*theta.I,2,sum))))
+  # f<--2*(prior+sum(ll.I))
+  f<- -sum(ll.I)
+}
+
+m.f <- optim(tbeta, f, X.I = X.I, y.I = y.I, method = 'BFGS', hessian=TRUE)
+m.f$par
 optimLogit$par
 M1$coefficients
 manual_logistic_regression(X,y)
