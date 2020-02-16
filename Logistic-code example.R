@@ -82,20 +82,51 @@ manual_logistic_regression(X,y)
 # (Intercept)          x1          x2          x3 
 # -1.3512086   0.3191309   0.2033449  -0.0832102 
 
+#### CODE2- shorter ####
+# ===
+# https://stats.stackexchange.com/questions/81000/calculate-coefficients-in-a-logistic-regression-with-r
+# ===
 
-#### another data
+# compute the logistic regression parameters as 
+#   an optimal value
+#==
+# define the logistic transformation
+logit = function(mX, vBeta) {
+  return(exp(mX %*% vBeta)/(1+ exp(mX %*% vBeta)) )
+}
+
+# stable parametrisation of the log-likelihood function
+# Note: The negative of the log-likelihood is being returned, since we will be
+# /minimising/ the function.
+logLikelihoodLogitStable = function(vBeta, mX, vY) {
+  return(-sum(
+    vY*(mX %*% vBeta - log(1+exp(mX %*% vBeta))) + (1-vY)*(-log(1 + exp(mX %*% vBeta)))
+  )) 
+}
+
+# initial set of parameters
+# tbeta = c(10, -0.1, -0.3, 0.001) # arbitrary starting parameters
+
+# minimise the (negative) log-likelihood to get the logit fit
+optimLogit = optim(tbeta, logLikelihoodLogitStable, mX = X, vY = y, method = 'BFGS', hessian=TRUE)
+logit(X, optimLogit$par)
+optimLogit$par
+M1$coefficients
+manual_logistic_regression(X,y)
+
+#### another data ####
 mydata <- read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
 mylogit <- glm(admit ~ gre + gpa, data = mydata, family = "binomial")
 summary(mylogit)
 
 X2 <- as.matrix(cbind(1, mydata[,2:3]))
-y <- as.matrix(mydata[,1])
+y2 <- as.matrix(mydata[,1])
 
 
-manual_logistic_regression(X2, y)
+manual_logistic_regression(X2, y2)
 
 
-### REFINED CODE ####
+### REFINED CODE1 ####
 
 #A function to return p, given X and beta
 #We'll need this function in the iterative section
@@ -146,5 +177,10 @@ log_reg = function(X,y, beta, threshold = 1e-10, max_iter = 100)
   return(beta)
 }
 
-log_reg(X=X2, y=y, beta= beta(X2))
+
+log_reg(X=X2, y=y2, beta= beta(X2))
 coef(mylogit)
+tbeta2 <-c(-20, 0.5,0.6)
+optimLogit2 = optim(tbeta2, logLikelihoodLogitStable, mX = X2, vY = y2, method = 'BFGS', hessian=TRUE)
+optimLogit2$par
+logit(X2, optimLogit2$par)
