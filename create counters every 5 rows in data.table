@@ -1,0 +1,10 @@
+tsdf <- data.table::data.table(
+  y = c(379, 357, 390, 376, 376, 363, 367, 382, 381, 359, 
+    401, 402, 407, 402, 396, 402, 387, 392, 395, 394, 415, 405, 396, 390, 395))
+
+# create batch IDs and replicate numbers
+
+N <- 5 # number of batches
+R <- 5 # number of measurements per batch
+
+tsdf[, `:=`(batchID = sort(rep(seq(1:N), R)), repID = rep(seq(1, R, 1), N))]
