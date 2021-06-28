@@ -1,0 +1,5 @@
+
+
+for(j in 1:N){
+  tsdf[, paste0("batch", j) := ifelse(batchID==j,1,0)]
+}
